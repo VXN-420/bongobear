@@ -79,6 +79,7 @@ def main():
     timer = 0              # 动画还要显示多少帧。0 = 待机
     key_was_down = False   # 上一帧是否有人按着键（用于边沿检测）
     dragging = False    # 是否正在拖拽
+    mouse_was_down = False
 
     running = True
     while running:
@@ -89,31 +90,36 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
         # 2 处理事件（鼠标拖拽）
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pt = ctypes.wintypes.POINT()
-                #把pt定义为C语言的变量，在C语言中point有x和y两个属性
-                ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
-                #ctypes.windll.user32.GetCursorPos，这里可以获得鼠标的xy坐标，然后传输进pt
-                dragging=True
-                mouse_x, mouse_y = pt.x, pt.y
-                window_x, window_y = get_window_position(hwnd)
-                print(f"检测到鼠标按下，位置: ({window_x}, {window_y})")
+        mouse_is_down=ctypes.windll.user32.GetAsyncKeyState(0x01) & 0x8000
 
-            elif event.type == pygame.MOUSEMOTION and dragging:
-                pt = ctypes.wintypes.POINT()
-                ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
-                dx= pt.x - mouse_x
-                dy= pt.y - mouse_y
-                #窗口也移动
-                new_window_x=window_x + dx
-                new_window_y=window_y + dy
-                ctypes.windll.user32.SetWindowPos(hwnd, 0, new_window_x, new_window_y, 0, 0, 0x0001 | 0x0004)
-                window_x, window_y = new_window_x, new_window_y
-                mouse_x, mouse_y = pt.x, pt.y
-                print(f"检测到鼠标移动，窗口新位置: ({new_window_x}, {new_window_y})")
+        if mouse_is_down and not mouse_was_down:
+            dragging=True
+            pt = ctypes.wintypes.POINT()
+            #把pt定义为C语言的变量，在C语言中point有x和y两个属性
+            ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+            #ctypes.windll.user32.GetCursorPos，这里可以获得鼠标的xy坐标，然后传输进pt
+            dragging=True
+            mouse_x, mouse_y = pt.x, pt.y
+            window_x, window_y = get_window_position(hwnd)
+            print(f"检测到鼠标按下，位置: ({window_x}, {window_y})")    
+        
+        elif mouse_is_down and dragging:
+            pt = ctypes.wintypes.POINT()
+            ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+            dx= pt.x - mouse_x
+            dy= pt.y - mouse_y
+            #窗口也移动
+            new_window_x=window_x + dx
+            new_window_y=window_y + dy
+            ctypes.windll.user32.SetWindowPos(hwnd, 0, new_window_x, new_window_y, 0, 0, 0x0001 | 0x0004)
+            window_x, window_y = new_window_x, new_window_y
+            mouse_x, mouse_y = pt.x, pt.y
+            print(f"检测到鼠标移动，窗口新位置: ({new_window_x}, {new_window_y})")
+        
 
-            elif event.type == pygame.MOUSEBUTTONUP:
-                dragging=False
+        else:
+            dragging=False
+        mouse_was_down=mouse_is_down
 
 
 
