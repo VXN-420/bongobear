@@ -8,6 +8,16 @@ import ctypes
 # 没打包时 sys._MEIPASS 不存在，就用 __file__ 的目录
 BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(__file__))#这句话的意思是：如果 sys 模块有 _MEIPASS 属性（打包后才有），就用它；否则用 __file__ 的目录。这样无论是打包后还是直接运行，程序都能正确找到资源文件夹。
 
+# 在调用 SetWindowPos 之前声明参数类型
+ctypes.windll.user32.SetWindowPos.argtypes = [
+    ctypes.c_void_p,   # HWND
+    ctypes.c_void_p,   # HWND hWndInsertAfter
+    ctypes.c_int,      # int X
+    ctypes.c_int,      # int Y
+    ctypes.c_int,      # int cx
+    ctypes.c_int,      # int cy
+    ctypes.c_uint,     # UINT uFlags
+]
 
 def any_key_down():
     """
@@ -41,6 +51,9 @@ def main():
     ctypes.windll.user32.SetWindowLongW(hwnd,-20, ctypes.windll.user32.GetWindowLongW(hwnd,-20) | 0x00080000)  # 设置窗口为工具窗口（WS_EX_TOOLWINDOW）和透明（WS_EX_TRANSPARENT）
     ctypes.windll.user32.SetLayeredWindowAttributes(hwnd,0xff00ff,0,1)
     #透明窗口
+
+    ctypes.windll.user32.SetWindowPos(hwnd, -1, 0, 0, 0, 0, 0x0001 | 0x0002)
+    #悬浮窗口，参数 -1 = HWND_TOPMOST，0,0 = 不改变位置，0,0 = 不改变大小，0x0001 | 0x0002 = SWP_NOSIZE | SWP_NOMOVE
 
     pygame.display.set_caption("自嘲熊")
     clock = pygame.time.Clock()
