@@ -1,10 +1,12 @@
 import pygame
 import os
+import sys
 import ctypes
 
 # BASE_DIR = main.py 所在的文件夹
-# 之后加载图片都用相对这个文件夹的路径，这样程序搬到哪都能跑
-BASE_DIR = os.path.dirname(__file__)
+# sys._MEIPASS 是 PyInstaller 打包后解压资源的临时文件夹
+# 没打包时 sys._MEIPASS 不存在，就用 __file__ 的目录
+BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(__file__))#这句话的意思是：如果 sys 模块有 _MEIPASS 属性（打包后才有），就用它；否则用 __file__ 的目录。这样无论是打包后还是直接运行，程序都能正确找到资源文件夹。
 
 
 def any_key_down():
@@ -117,8 +119,8 @@ def main():
         # ⑤ 翻到屏幕前 + 限制帧率
         # ============================================================
         pygame.display.flip()
-        clock.tick(60)
-
+        clock.tick(80)
+        #clock.tick()把一秒分成了X帧，然后前面用time控制显示的帧数，以此决定显示画面的停留时间
     pygame.quit()
 
 
