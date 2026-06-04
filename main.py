@@ -34,7 +34,14 @@ def main():
     os.environ["SDL_IME_SHOW_UI"] = "0"  # 禁用输入法，确保 WASD 等字母键能被检测
     pygame.init()
     pygame.key.stop_text_input()          # 额外保险：停止文本输入模式
-    screen = pygame.display.set_mode((400, 300))
+
+    #---- 创建窗口 ----
+    screen = pygame.display.set_mode((400, 300), pygame.NOFRAME)  # 无边框窗口
+    hwnd=pygame.display.get_wm_info()['window']  # 获取窗口句柄
+    ctypes.windll.user32.SetWindowLongW(hwnd,-20, ctypes.windll.user32.GetWindowLongW(hwnd,-20) | 0x00080000)  # 设置窗口为工具窗口（WS_EX_TOOLWINDOW）和透明（WS_EX_TRANSPARENT）
+    ctypes.windll.user32.SetLayeredWindowAttributes(hwnd,0xff00ff,0,1)
+    #透明窗口
+
     pygame.display.set_caption("自嘲熊")
     clock = pygame.time.Clock()
 
@@ -100,7 +107,7 @@ def main():
         #    middle = 双手都在中间
         #    end    = 右手在下，左手在上（和待机相反）
         # ============================================================
-        screen.fill((240, 240, 240))
+        screen.fill((255, 0, 255))  # 填充背景色（纯红，后面会被透明掉）
 
         # 居中：窗口中央 - 图片一半 = 图片左上角该放的位置
         x = screen.get_width() // 2 - begin.get_width() // 2
