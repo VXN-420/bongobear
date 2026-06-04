@@ -2,6 +2,7 @@ import pygame
 import os
 import sys
 import ctypes
+import ctypes.wintypes
 
 # BASE_DIR = main.py 所在的文件夹
 # sys._MEIPASS 是 PyInstaller 打包后解压资源的临时文件夹
@@ -38,6 +39,10 @@ def any_key_down():
             return True
     return False
 
+def get_window_position(hwnd):
+    rect = ctypes.wintypes.RECT()
+    ctypes.windll.user32.GetWindowRect(hwnd, ctypes.byref(rect))
+    return rect.left, rect.top
 
 def main():
     # ---- 初始化 Pygame ----
@@ -72,9 +77,8 @@ def main():
     # 这些变量"跨帧存活"——它们的值从上一帧保留到下一帧，
     # 不随循环重新开始而重置。这就是程序的"记忆"。
     timer = 0              # 动画还要显示多少帧。0 = 待机
-    current_paw = None      # "left" 或 "right"，记录本轮是哪只手在按
-    press_count = 0         # 总共敲了多少次键。奇数→左手，偶数→右手
     key_was_down = False   # 上一帧是否有人按着键（用于边沿检测）
+    dragging = False    # 是否正在拖拽
 
     running = True
     while running:
@@ -84,6 +88,34 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+        # 2 处理事件（鼠标拖拽）
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pt = ctypes.wintypes.POINT()
+                #把pt定义为C语言的变量，在C语言中point有x和y两个属性
+                ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+                #ctypes.windll.user32.GetCursorPos，这里可以获得鼠标的xy坐标，然后传输进pt
+                dragging=True
+                mouse_x, mouse_y = pt.x, pt.y
+                window_x, window_y = get_window_position(hwnd)
+                print(f"检测到鼠标按下，位置: ({window_x}, {window_y})")
+
+            elif event.type == pygame.MOUSEMOTION and dragging:
+                pt = ctypes.wintypes.POINT()
+                ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+                dx= pt.x - mouse_x
+                dy= pt.y - mouse_y
+                #窗口也移动
+                new_window_x=window_x + dx
+                new_window_y=window_y + dy
+                ctypes.windll.user32.SetWindowPos(hwnd, 0, new_window_x, new_window_y, 0, 0, 0x0001 | 0x0004)
+                window_x, window_y = new_window_x, new_window_y
+                mouse_x, mouse_y = pt.x, pt.y
+                print(f"检测到鼠标移动，窗口新位置: ({new_window_x}, {new_window_y})")
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                dragging=False
+
+
 
         # ============================================================
         # ② 边沿检测：检测"刚按下"的瞬间
@@ -93,13 +125,7 @@ def main():
         key_is_down = any_key_down()
 
         if key_is_down and not key_was_down:   # ← "刚按下"的瞬间
-            press_count += 1                       # 敲键次数 +1
             timer = 12                             # 启动动画（30帧 ≈ 0.5秒）
-            if press_count % 2 == 1:               # 奇数次 → 左手主导
-                current_paw = "left"
-            else:                                  # 偶数次 → 右手主导
-                current_paw = "right"
-
         key_was_down = key_is_down  # 把这帧的状态存起来，给下一帧的"上一帧"用
 
         # ============================================================
