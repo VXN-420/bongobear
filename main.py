@@ -73,7 +73,7 @@ def main():
     raw_middle = pygame.image.load(os.path.join(res, "bear_frame_1.png")).convert_alpha()
     raw_end = pygame.image.load(os.path.join(res, "bear_frame_2.png")).convert_alpha()
 
-    # ---- 首次按 SCALE 缩放 ----
+    # ---- 首次按 SCALE 缩放 ---- 
     begin, middle, end = rescale_images(raw_begin, raw_middle, raw_end)
 
     # ---- 系统托盘 ----

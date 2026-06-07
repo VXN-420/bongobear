@@ -8,7 +8,7 @@ import sys
 BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(__file__))
 
 
-def create_tray(hwnd):
+def create_tray(hwnd): 
     icon_path = os.path.join(BASE_DIR, "resourse", "bear_frame_0.png")
     icon_img = Image.open(icon_path)
 
