@@ -1,10 +1,12 @@
 __pycache__/
 *.pyc
 *.pyo
+.venv*
 venv/
-.venv/
 .vscode/
 *.egg-info/
 dist/
 build/
+*.spec
+Desktop.ini
 desktop.ini
