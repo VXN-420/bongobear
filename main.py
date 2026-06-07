@@ -58,8 +58,9 @@ def main():
     pygame.display.set_icon(icon)
 
     hwnd = pygame.display.get_wm_info()['window']
+    # WS_EX_LAYERED(透明) | WS_EX_TOOLWINDOW(不在任务栏显示)
     ctypes.windll.user32.SetWindowLongW(hwnd, -20,
-        ctypes.windll.user32.GetWindowLongW(hwnd, -20) | 0x00080000)
+        ctypes.windll.user32.GetWindowLongW(hwnd, -20) | 0x00080000 | 0x00000080)
     ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, 0xff00ff, 0, 1)
     ctypes.windll.user32.SetWindowPos(hwnd, -1, 0, 0, 0, 0, 0x0001 | 0x0002)
 
@@ -103,7 +104,7 @@ def main():
         # ---- ① 处理事件 ----
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                ctypes.windll.user32.ShowWindow(hwnd, 0)  # 点 × → 隐藏到托盘，不退出
 
         # ---- ② 左键拖拽 ----
         mouse_is_down = ctypes.windll.user32.GetAsyncKeyState(0x01) & 0x8000

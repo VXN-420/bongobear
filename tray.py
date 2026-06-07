@@ -20,7 +20,7 @@ def create_tray(hwnd):
 
     def on_quit(icon, item):
         icon.stop()
-        ctypes.windll.user32.PostMessageW(hwnd, 0x0010, 0, 0)
+        os._exit(0)  # 直接退出整个程序
 
     menu = pystray.Menu(
         pystray.MenuItem("显示/隐藏", on_toggle),
