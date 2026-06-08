@@ -22,7 +22,7 @@ python main.py
 
 ### 方式二：EXE（无需 Python）
 
-下载 `dist/main.exe`，双击运行。
+下载 `bongobear.exe`，双击运行。
 
 ## 操作
 
